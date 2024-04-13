@@ -1,23 +1,21 @@
-import type { CartItem,GuitarId } from "../types"
+import { useMemo,Dispatch } from "react"
+import type { CartItem} from "../types"
+import { cartActions } from "../reducer/cart-reducer"
 
 type HeaderProps={
-    cart:CartItem[] 
-    removerFromCart:(id:GuitarId) => void
-    increaseQuantity:(id:GuitarId) => void
-    DecreaseQuantity:(id:GuitarId) => void
-    clearCart:()=> void
-    isEmpty:boolean
-    cartTotal:number
+    cart:CartItem[]
+    dispatch: Dispatch<cartActions>
 }
 
 function Header({
     cart, 
-    removerFromCart,
-    increaseQuantity, 
-    DecreaseQuantity,
-    clearCart,isEmpty,cartTotal
+    dispatch,
 }:HeaderProps)
 {
+
+const isEmpty = useMemo(() =>cart.length === 0,[cart])
+
+const cartTotal=useMemo(()=>cart.reduce((total,item)=>total+(item.quantity* item.price),0),[cart])
 
     return(
         <header className="py-5 header">
@@ -65,7 +63,7 @@ function Header({
                                                         <button
                                                             type="button"
                                                             className="btn btn-dark"
-                                                            onClick={()=>DecreaseQuantity(guitar.id)}
+                                                            onClick={()=>dispatch({type:'decrease-quantity',payload:{item:guitar.id}})}
                                                         >
                                                             -
                                                         </button>
@@ -73,7 +71,7 @@ function Header({
                                                         <button
                                                             type="button"
                                                             className="btn btn-dark"
-                                                            onClick={()=>increaseQuantity(guitar.id)}
+                                                            onClick={()=>dispatch({type:'increase-quantity',payload:{item:guitar.id}})}
                                                         >
                                                             +
                                                         </button>
@@ -82,7 +80,7 @@ function Header({
                                                         <button
                                                             className="btn btn-danger"
                                                             type="button"
-                                                            onClick={()=>removerFromCart(guitar.id)}
+                                                            onClick={()=>dispatch({type:'remove-from-cart',payload:{item:guitar.id}})}
                                                         >
                                                             X
                                                         </button>
@@ -99,7 +97,7 @@ function Header({
                                 
                                 <button 
                                     className="btn btn-dark w-100 mt-3 p-2"
-                                    onClick={clearCart}
+                                    onClick={()=> dispatch({type:'clear-cart'})}
 
                                 >
                                     Vaciar Carrito</button>
